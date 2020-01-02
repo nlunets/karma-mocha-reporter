@@ -516,6 +516,9 @@ var MochaReporter = function (baseReporterDecorator, formatError, config) {
                     item.name += colors.warning.print((' (slow: ' + formatTimeInterval(result.time) + ')'));
                     self.numberOfSlowTests++;
                 }
+                else {
+                    item.name += '( '+formatTimeInterval(result.time)+')';
+                }
 
                 // if (item.count === self.numberOfBrowsers) {
                 item.isCompleted = true;
