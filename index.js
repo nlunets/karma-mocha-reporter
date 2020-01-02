@@ -305,10 +305,8 @@ var MochaReporter = function (baseReporterDecorator, formatError, config) {
             if (item.isRoot) {
                 depth = 1;
             }
-
             if (item.items) {
                 var allChildItemsCompleted = allChildItemsAreCompleted(item.items);
-
                 if (allChildItemsCompleted) {
                     // print current item because all children are completed
                     printItem(item, depth);
@@ -388,7 +386,8 @@ var MochaReporter = function (baseReporterDecorator, formatError, config) {
                             try {
                                 err.actual = JSON.parse(err.actual);
                                 err.expected = JSON.parse(err.expected);
-                            } catch (e) { }
+                            } catch (e) {
+                            }
                         }
 
                         // ensure that actual and expected are strings
@@ -445,6 +444,16 @@ var MochaReporter = function (baseReporterDecorator, formatError, config) {
      */
     function specComplete(browser, result) {
         // complete path of the test
+        var currentSuite = self.currentSuitePerBrowser[result.browser];
+        var newSuiteName = internalPrefix + result.suite;
+        if(newSuiteName != currentSuite) {
+            self.currentSuitePerBrowser[result.browser] = newSuiteName;
+            if (currentSuite) {
+                print({[currentSuite]: self.allResults[currentSuite]}, 0);
+            }
+            // console.log("Browser ["+result.browser+"] started "+ result.suite)
+        }
+
         var path = [].concat(result.suite, result.description);
         var maxDepth = path.length - 1;
 
@@ -508,14 +517,14 @@ var MochaReporter = function (baseReporterDecorator, formatError, config) {
                     self.numberOfSlowTests++;
                 }
 
-                if (item.count === self.numberOfBrowsers || config.mochaReporter.printFirstSuccess) {
-                    item.isCompleted = true;
+                // if (item.count === self.numberOfBrowsers) {
+                item.isCompleted = true;
 
-                    // print results to output when test was ran through all browsers
-                    if (outputMode !== 'minimal') {
-                        print(self.allResults, depth);
-                    }
-                }
+                // // print results to output when test was ran through all browsers
+                // if (outputMode !== 'minimal') {
+                // 	print(self.allResults, depth);
+                // }
+                // }
             } else {
                 item.items = item.items || {};
             }
@@ -524,6 +533,7 @@ var MochaReporter = function (baseReporterDecorator, formatError, config) {
         }, self.allResults);
     }
 
+    self.currentSuitePerBrowser = {};
     self.specSuccess = specComplete;
     self.specSkipped = specComplete;
     self.specFailure = specComplete;
