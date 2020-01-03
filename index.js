@@ -517,7 +517,7 @@ var MochaReporter = function (baseReporterDecorator, formatError, config) {
                     self.numberOfSlowTests++;
                 }
                 else {
-                    item.name += '( '+formatTimeInterval(result.time)+')';
+                    item.name += ' ('+formatTimeInterval(result.time)+')';
                 }
 
                 // if (item.count === self.numberOfBrowsers) {
@@ -567,6 +567,13 @@ var MochaReporter = function (baseReporterDecorator, formatError, config) {
     };
 
     self.onRunComplete = function (browsers, results) {
+        Object.keys( self.currentSuitePerBrowser).forEach(function(browserID) {
+            var currentSuite = self.currentSuitePerBrowser[browserID];
+            if (currentSuite) {
+                print({[currentSuite]: self.allResults[currentSuite]}, 0);
+            }
+        });
+
         browsers.forEach(function (browser) {
             self.totalTime += browser.lastResult.totalTime;
         });
