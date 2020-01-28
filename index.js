@@ -301,22 +301,24 @@ var MochaReporter = function (baseReporterDecorator, formatError, config) {
         for (i = 0; i < length; i++) {
             item = suite[keys[i]];
 
-            // start of a new suite
-            if (item.isRoot) {
-                depth = 1;
-            }
-            if (item.items) {
-                var allChildItemsCompleted = allChildItemsAreCompleted(item.items);
-                if (allChildItemsCompleted) {
-                    // print current item because all children are completed
-                    printItem(item, depth);
-
-                    // print all child items
-                    print(item.items, depth + 1);
+            if(item) {
+                // start of a new suite
+                if (item.isRoot) {
+                    depth = 1;
                 }
-            } else {
-                // print current item which has no children
-                printItem(item, depth);
+                if (item.items) {
+                    var allChildItemsCompleted = allChildItemsAreCompleted(item.items);
+                    if (allChildItemsCompleted) {
+                        // print current item because all children are completed
+                        printItem(item, depth);
+
+                        // print all child items
+                        print(item.items, depth + 1);
+                    }
+                } else {
+                    // print current item which has no children
+                    printItem(item, depth);
+                }
             }
         }
     }
@@ -567,10 +569,12 @@ var MochaReporter = function (baseReporterDecorator, formatError, config) {
     };
 
     self.onRunComplete = function (browsers, results) {
+        try {
         Object.keys( self.currentSuitePerBrowser).forEach(function(browserID) {
             var currentSuite = self.currentSuitePerBrowser[browserID];
             if (currentSuite) {
                 print({[currentSuite]: self.allResults[currentSuite]}, 0);
+                delete self.currentSuitePerBrowser[browserID];
             }
         });
 
@@ -620,6 +624,10 @@ var MochaReporter = function (baseReporterDecorator, formatError, config) {
 
         if (outputMode === 'autowatch') {
             outputMode = 'minimal';
+        }
+        }
+        catch(e)  {
+            console.log(e);
         }
     };
 };
